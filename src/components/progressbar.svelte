@@ -5,7 +5,7 @@
 </script>
 
 <div class="progress">
-    <div class="progress-bar" bind:this={mdiv}>Uploading..</div>
+    <div class="progress-bar" bind:this={mdiv}> </div>
 </div>
 
 <style>

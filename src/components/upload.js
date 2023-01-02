@@ -30,7 +30,9 @@ function Uploadtostorage(folder) {
   uploadTask.on("state_changed", (snapshot) => {
     const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
     mdiv.style.width = `${progress}%`;
-
+    if (progress<100) {
+      mdiv.innerText="Uploading...";
+    }
     if (progress==100) {
       mdiv.innerText="Done";
     }

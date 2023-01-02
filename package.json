@@ -1,6 +1,7 @@
 {
   "name": "image-upload",
   "version": "0.0.1",
+  "type": "module",
   "scripts": {
     "dev": "svelte-kit dev",
     "build": "svelte-kit build",
@@ -15,7 +16,6 @@
     "@types/node": "^18.11.18",
     "svelte": "^3.44.0"
   },
-  "type": "module",
   "dependencies": {
     "firebase": "^9.15.0",
     "svelte-kit": "^1.0.0",
