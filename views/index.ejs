@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Video Converter in Node.js Using Handbrake.js</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <br />
+      <h1 class="text-center">Convert Audio and Videos</h1>
+          <p class="text-center">
+              Free online Audio & Video Converter. Convert to MP4, MP3,
+              AVI, MKV etc.
+          </p>
+      <br />
+      <form id="form" enctype="multipart/form-data">
+        <div class="form-group">
+          <label for="video">Select Video:</label>
+          <input
+            type="file"
+            id="upload-input"
+            accept="video/*"
+            name="file"
+            class="form-control"
+            required
+          />
+        </div>
+        <div class="progress">
+          <div class="progress-bar" role="progressbar"></div>
+        </div>
+        <div class="form-group">
+          <label for="format">Select Format:</label>
+          <select class="form-control" id="format">
+            <option value="mp4" selected>MP4</option>
+            <option value="avi">AVI</option>
+            <option value="wmv">WMV</option>
+            <option value="mkv">MKV</option>
+            <option value="flv">FLV</option>
+            <option value="gif">GIF</option>
+            <option value="mov">MOV</option>
+            <option value="m4v">M4V</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <button id="button" class="btn btn-danger btn-block">Download Video</button>
+        </div>
+      </form>
+      
+      <form id="form1" enctype="multipart/form-data">
+        <div class="form-group">
+          <label for="audio">Select Audio:</label>
+          <input
+            type="file"
+            id="upload-input1"
+            accept="audio/*"
+            name="file"
+            class="form-control"
+            required
+          />
+        </div>
+        <div class="progress">
+          <div class="progress-bar1" role="progressbar"></div>
+        </div>
+        <div class="form-group">
+          <label for="format1">Select Format:</label>
+          <select class="form-control" id="format">
+            <option value="mp3" selected>MP3</option>
+            <option value="m4a">M4A</option>
+            <option value="wav">WAV</option>
+            <option value="flac">FLAC</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <button id="button1" class="btn btn-danger btn-block">Download Audio</button>
+        </div>
+      </form>
+
+    </div>
+  </body>
+  <script src="https://cdn.jsdelivr.net/npm/browser-image-converter@0.1.1/dist/index.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script>
+    var files;
+    $("#form").on("submit", function (e) {
+      e.preventDefault();
+      //$('#upload-input').click();
+      $(".progress-bar").text("0%");
+      $("#button").text("Uploading File");
+      $("#button").prop("disabled", "true");
+      $(".progress-bar").width("0%");
+      convertFile();
+    });
+    $("#upload-input").on("change", function () {
+      files = $(this).get(0).files;
+      var fileExtension = [
+        "mp4",
+        "avi",
+        "gif",
+        "flv",
+        "m4v",
+        "mkv",
+        "mov",
+        "wmv",
+      ];
+      if (
+        $.inArray(
+          $(this).val().split(".").pop().toLowerCase(),
+          fileExtension
+        ) == -1
+      ) {
+        $(this).val("");
+
+        alert("Please upload a video file");
+      }
+    });
+    function convertFile() {
+      if (files.length > 0) {
+        // create a FormData object which will be sent as the data payload in the
+        // AJAX request
+        var formData = new FormData();
+        // loop through all the selected files and add them to the formData object
+        for (var i = 0; i < files.length; i++) {
+          var file = files[i];
+          // add the files to formData object for the data payload
+          formData.append("file", file, file.name);
+        }
+        console.log(formData);
+        var formdata2 = new FormData();
+        $.ajax({
+          url: "/uploadvideo",
+          type: "POST",
+          data: formData,
+          processData: false,
+          contentType: false,
+          success: function (data) {
+            console.log(data);
+            var data2 = { path: data.path,format:$('#format').val() };
+            console.log("upload successful!\n" + data.path);
+            $("#button").text("File Uploaded Now Processing");
+            $("#button").prop("disabled", true);
+            formdata2.append("path", data.path);
+            $.ajax({
+              url: "/convertvideo",
+              type: "POST",
+              data: JSON.stringify(data2),
+              contentType: "application/json",
+              dataType: "json",
+              success: function (data) {
+                window.open("/download?path=" + data.path);
+                $("#button").text("Upload File");
+                $("#button").prop("disabled", false);
+                location.reload();
+              },
+            });
+          },
+          xhr: function () {
+            // create an XMLHttpRequest
+            var xhr = new XMLHttpRequest();
+            // listen to the 'progress' event
+            xhr.upload.addEventListener(
+              "progress",
+              function (evt) {
+                if (evt.lengthComputable) {
+                  // calculate the percentage of upload completed
+                  var percentComplete = evt.loaded / evt.total;
+                  percentComplete = parseInt(percentComplete * 100);
+                  // update the Bootstrap progress bar with the new percentage
+                  $(".progress-bar").text(percentComplete + "%");
+                  $(".progress-bar").width(percentComplete + "%");
+                  // once the upload reaches 100%, set the progress bar text to done
+                  if (percentComplete === 100) {
+                    $(".progress-bar").html("Done");
+                  }
+                }
+              },
+              false
+            );
+            return xhr;
+          },
+        });
+      }
+    }
+
+
+    var files1;
+    $("#form1").on("submit", function (e) {
+      e.preventDefault();
+      //$('#upload-input').click();
+      $(".progress-bar1").text("0%");
+      $("#button1").text("Uploading File");
+      $("#button1").prop("disabled", "true");
+      $(".progress-bar1").width("0%");
+      convertFile1();
+    });
+    $("#upload-input1").on("change", function () {
+      files1 = $(this).get(0).files;
+      var fileExtension = [
+        "mp3", 
+        "m4a",
+        "wav", 
+        "flac",
+      ];
+      if (
+        $.inArray(
+          $(this).val().split(".").pop().toLowerCase(),
+          fileExtension
+        ) == -1
+      ) {
+        $(this).val("");
+
+        alert("Please upload an audio file");
+      }
+    });
+    function convertFile1() {
+      if (files1.length > 0) {
+        // create a FormData object which will be sent as the data payload in the
+        // AJAX request
+        var formData = new FormData();
+        // loop through all the selected files and add them to the formData object
+        for (var i = 0; i < files1.length; i++) {
+          var file = files1[i];
+          // add the files to formData object for the data payload
+          formData.append("file", file, file.name);
+        }
+        console.log(formData);
+        var formdata2 = new FormData();
+        $.ajax({
+          url: "/uploadaudio",
+          type: "POST",
+          data: formData,
+          processData: false,
+          contentType: false,
+          success: function (data) {
+            console.log(data);
+            var data2 = { path: data.path,format:$('#format1').val() };
+            console.log("upload successful!\n" + data.path);
+            $("#button1").text("File Uploaded Now Processing");
+            $("#button1").prop("disabled", true);
+            formdata2.append("path", data.path);
+            $.ajax({
+              url: "/convertaudio",
+              type: "POST",
+              data: JSON.stringify(data2),
+              contentType: "application/json",
+              dataType: "json",
+              success: function (data) {
+                window.open("/download?path=" + data.path);
+                $("#button1").text("Upload File");
+                $("#button1").prop("disabled", false);
+                location.reload();
+              },
+            });
+          },
+          xhr: function () {
+            // create an XMLHttpRequest
+            var xhr = new XMLHttpRequest();
+            // listen to the 'progress' event
+            xhr.upload.addEventListener(
+              "progress",
+              function (evt) {
+                if (evt.lengthComputable) {
+                  // calculate the percentage of upload completed
+                  var percentComplete = evt.loaded / evt.total;
+                  percentComplete = parseInt(percentComplete * 100);
+                  // update the Bootstrap progress bar with the new percentage
+                  $(".progress-bar1").text(percentComplete + "%");
+                  $(".progress-bar1").width(percentComplete + "%");
+                  // once the upload reaches 100%, set the progress bar text to done
+                  if (percentComplete === 100) {
+                    $(".progress-bar1").html("Done");
+                  }
+                }
+              },
+              false
+            );
+            return xhr;
+          },
+        });
+      }
+    }
+
+
+  </script>
+</html>
