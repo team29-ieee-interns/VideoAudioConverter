@@ -1,6 +1,7 @@
 {
   "name": "image-upload",
   "version": "0.0.1",
+  "type": "module",
   "scripts": {
     "dev": "svelte-kit dev",
     "build": "svelte-kit build",

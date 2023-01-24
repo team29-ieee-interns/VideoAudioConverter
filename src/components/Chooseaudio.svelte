@@ -1,5 +1,5 @@
 <script>
-  import { getFile } from "./upload";
+  import { getFile } from "./upload.js";
   let fileInput,
     folder = "audio/";
   let extensions = ".mp3, .m4a, .wav, .flac";

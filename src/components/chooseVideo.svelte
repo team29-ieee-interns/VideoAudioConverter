@@ -1,5 +1,5 @@
 <script>
-    import { getFile } from "./upload";
+    import { getFile } from "./upload.js";
     let fileInput,
         folder = "videos/";
     let extensions = ".mp4, .webm, .ogg , .mkv , .wmv , .avi , .gif ";
